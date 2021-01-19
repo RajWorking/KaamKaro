@@ -1,2 +1,3 @@
 - [ ] Skill set dropdown
+- [ ] Rating
 - [ ] 

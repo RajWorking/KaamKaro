@@ -1,9 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const Jobs = require('./Jobs');
-const Applicants = require('./Applicants');
-const text = require('./resources/text');
+const validateText = require('./resources/validators')
 
 const ApplicationSchema = new Schema({
   job: {
@@ -15,13 +13,26 @@ const ApplicationSchema = new Schema({
     ref: 'Applicants',
   },
   sop: {
-    type: text,
+    type: String,
+    trim: true,
+    lowercase: true,
+    validate: [validateText, 'Crossed word limit!'],
+    required: true
   },
   status: {
     type: String,
     enum: ['Rejected', 'Accepted', 'Applied', 'Shortlisted'],
+    default: 'Applied'
     // Applied is same as Pending
   },
+  joining_date: {
+    type: Date,
+    default: null
+  },
+  appliation_date: {
+    type: Date,
+    default: Date.now()
+  }
 });
 
-module.exports = Application = mongoose.model('appications', ApplicationSchema);
+module.exports = mongoose.model('applications', ApplicationSchema);

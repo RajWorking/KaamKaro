@@ -9,13 +9,4 @@ var validateText = function (text) {
   return words <= 250;
 };
 
-const text = new Schema({
-  text: {
-    type: String,
-    trim: true,
-    lowercase: true,
-    validate: [validateText, 'Crossed word limit!'],
-  },
-});
-
-module.exports = text;
+module.exports = validateText;

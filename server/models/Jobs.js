@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const Recruiters = require('./Recruiters');
 const Applications = require('./Applications');
+// const Recruiters = require('./Recruiters');
+// const Skills = require('./resources/skills')
 
 const JobSchema = new Schema({
-  active: Boolean,
   title: {
     type: String,
     required: true,
@@ -36,6 +36,10 @@ const JobSchema = new Schema({
     min: 0,
     max: 5,
   },
+  status: {
+    type: String,
+    enum: ['Full','Apply', 'Complete']
+  }
 });
 
 JobSchema.pre('remove', function (next) {
