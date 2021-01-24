@@ -6,11 +6,11 @@ const validateText = require('./resources/validators')
 const ApplicationSchema = new Schema({
   job: {
     type: Schema.Types.ObjectId,
-    ref: 'Jobs',
+    ref: 'jobs',
   },
   applicant: {
     type: Schema.Types.ObjectId,
-    ref: 'Applicants',
+    ref: 'applicants',
   },
   sop: {
     type: String,

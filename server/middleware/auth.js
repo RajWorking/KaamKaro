@@ -11,7 +11,6 @@ function auth(req, res, next) {
     req.user = decoded;
     next();
   } catch (e) {
-    console.log(token);
     res.status(400).json({ msg: 'InvalId tokEn' });
   }
 }

@@ -1,3 +1,3 @@
-- [ ] Skill set dropdown
+- [ ] Filtering / Searching
 - [ ] Rating
 - [ ] 

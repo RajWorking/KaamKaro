@@ -7,7 +7,7 @@ const router = express.Router();
 
 const User = require('../../models/Applicants');
 const Application = require('../../models/Applications');
-const e = require('express');
+const Job = require('../../models/Jobs')
 
 router.get('/all', (req, res) => {
   User.find().then((items) => res.json(items));
@@ -61,7 +61,16 @@ router.get('/myapplications', auth, async (req, res) => {
     const user = await User.findById(req.user.id);
     if (!user) throw Error('Invalid User');
 
-    Application.find({ applicant: user._id, status: req.query.status }).then((application) => res.json(application));
+    const application = await Application.find({ applicant: user._id }).populate({
+      path: 'job',
+      model: 'jobs',
+      populate: {
+        path: 'recruiter',
+        model: 'recruiters',
+      },
+    });
+    
+    res.status(200).json(application)
   } catch (e) {
     res.status(400).json({ msg: e.message });
   }

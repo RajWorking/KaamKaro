@@ -1,11 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const config = require('config');
+const cors = require('cors');
 const Port = config.get('PORT');
 const app = express();
 
 const login = require('./routes/auth/login');
 
+app.use(cors());
 app.use(express.json());
 
 const db = config.get('mongoURI');

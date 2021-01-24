@@ -11,9 +11,18 @@ const auth = require('../../middleware/auth');
 router.get('/view', auth, async (req, res) => {
   try {
     const user = await Applicant.findById(req.user.id);
-    if (!user) throw Error('Invalid Recruiter');
+    if (!user) throw Error('Invalid Applicant');
     const job_list = await Job.find({ deadline: { $gte: new Date() } });
-    res.status(200).json(job_list);
+
+    const changedJob = async (job) => {
+      const existing = await Application.countDocuments({ applicant: user._id, job: job._id });
+      if (existing) job.status = 'Applied';
+      return job;
+    };
+
+    const data = await Promise.all(job_list.map((job) => changedJob(job)));
+
+    res.status(200).json(data);
   } catch (e) {
     res.status(400).json({ msg: e.message });
   }
@@ -54,22 +63,26 @@ router.post('/add', auth, async (req, res) => {
 router
   .route('/:id')
   .post(auth, async (req, res) => {
-    const { sop } = req.body;
-
     try {
+      const { sop } = req.body;
+      if (!sop) throw Error('No sop found!');
+
       const user = await Applicant.findById(req.user.id);
       if (!user) throw Error('Only verified users can Apply');
 
       const active = await Application.countDocuments({ applicant: user._id, status: 'Accepted' });
       if (active) throw Error('Only 1 job at a time');
 
-      const applied_to = await Application.countDocuments({ applicant: user._id, status: { not: 'Rejected' } });
+      const applied_to = await Application.countDocuments({ applicant: user._id, status: { $ne: 'Rejected' } });
       if (applied_to >= config.get('apply_limit')) throw Error('Please do not spam');
 
       const job = await Job.findById(req.params.id);
       if (!job) throw Error('Invalid job id');
 
-      if (job.status !== 'Apply') throw Error('Full');
+      const job_st = await Application.countDocuments({ job: job._id });
+      if (job.status == 'Full') throw Error('Full');
+      else if (job_st+1 >= job.max_applications) job.status = 'Full';
+      await Job.updateOne({ _id: req.params.id }, job);
 
       if (job.deadline.getTime() < Date.now()) throw Error('Deadline passed');
 
@@ -84,15 +97,19 @@ router
         job: job._id,
       });
 
-      const recre = await Recruiter.findById(job.recruiter._id);
+      await newApplication.save();
 
-      newApplication.save().then(
-        res.status(201).json({
-          applicant: user.name,
-          job: job.title,
-          recruiter: recre.name,
+      const data = await newApplication
+        .populate({
+          path: 'job',
+          model: 'jobs',
+          populate: {
+            path: 'recruiter',
+            model: 'recruiters',
+          },
         })
-      );
+        .execPopulate();
+      res.status(201).json(data);
     } catch (e) {
       res.status(400).json({ msg: e.message });
     }
@@ -101,7 +118,7 @@ router
     try {
       const user = await Recruiter.findById(req.user.id);
       if (!user) throw Error('Invalid Recruiter');
-      const applications_list = await Application.find({ job: req.params.id, status: req.query.status }).populate('applicant');
+      const applications_list = await Application.find({ job: req.params.id }).populate('applicant');
       res.status(200).json(applications_list);
     } catch (e) {
       res.status(400).json({ msg: e.message });
@@ -111,8 +128,8 @@ router
     try {
       const user = await Recruiter.findById(req.user.id);
       if (!user) throw Error('Invalid Recruiter');
-      const removed = await Job.remove({ id: req.params.id });
-      if (!removed) throw Error('Job doesnt exist');
+      const removed = await Job.deleteOne({ _id: req.params.id });
+      if (!removed.deletedCount) throw Error('Job doesnt exist');
 
       res.status(200).json(removed);
     } catch (e) {
@@ -149,7 +166,7 @@ router
         else status = 'Full';
       }
 
-      const updated = await Job.findOneAndUpdate({ id: req.params.id }, updatedJob, {
+      const updated = await Job.findOneAndUpdate({ _id: req.params.id }, updatedJob, {
         new: true,
       });
       if (!updated) throw Error('Unknown job');

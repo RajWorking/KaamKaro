@@ -25,11 +25,7 @@ router.post('/', async (req, res) => {
 
     res.status(200).json({
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
+      type: user.user_type
     });
   } catch (e) {
     res.status(400).json({ msg: e.message });

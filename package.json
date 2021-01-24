@@ -4,7 +4,6 @@
   "description": "complete mern app",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "client-install": "npm install --prefix client",
     "server-install": "npm install --prefix server",
     "server": "npm run server --prefix server",

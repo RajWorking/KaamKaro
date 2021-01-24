@@ -2,8 +2,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const Applications = require('./Applications');
-// const Recruiters = require('./Recruiters');
-// const Skills = require('./resources/skills')
 
 const JobSchema = new Schema({
   title: {
@@ -12,7 +10,7 @@ const JobSchema = new Schema({
   },
   recruiter: {
     type: Schema.Types.ObjectId,
-    ref: 'Recruiters',
+    ref: 'recruiters',
   },
   max_applications: Number,
   max_positions: {
@@ -38,12 +36,19 @@ const JobSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ['Full','Apply', 'Complete']
+    enum: ['Full', 'Apply', 'Complete'],
+    default: 'Apply',
+  },
+});
+
+JobSchema.pre('deleteOne', async function (next) {
+  try {
+    const kk = await Applications.deleteMany({ job: this._conditions._id });
+    next();
+  } catch (err) {
+    next(err);
   }
 });
 
-JobSchema.pre('remove', function (next) {
-  return Applications.deleteMany({ job: this._id }).catch((err) => console.log(err));
-});
-
-module.exports = Job = mongoose.model('jobs', JobSchema);
+Job = mongoose.model('jobs', JobSchema);
+module.exports = Job;

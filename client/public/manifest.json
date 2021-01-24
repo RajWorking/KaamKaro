@@ -1,0 +1,9 @@
+{
+  "short_name": "Kaam_Karo",
+  "name": "Job application Portal",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
