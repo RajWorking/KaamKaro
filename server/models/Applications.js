@@ -29,7 +29,7 @@ const ApplicationSchema = new Schema({
     type: Date,
     default: null
   },
-  appliation_date: {
+  application_date: {
     type: Date,
     default: Date.now()
   }

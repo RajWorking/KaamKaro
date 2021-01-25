@@ -52,7 +52,7 @@ export default function CustomizedTables({rows}) {
           {rows.map((row) => (
             <StyledTableRow key={row._id}>
               <StyledTableCell component="th" scope="row">
-                {row.job && row.job.title}
+                {row.job.title}
               </StyledTableCell>
               <StyledTableCell align="right">{'not accepted yet' || row.joining_date}</StyledTableCell>
               <StyledTableCell align="right">{row.job.salary}</StyledTableCell>

@@ -23,7 +23,7 @@ const Login = ({ login, error }) => {
     if (res.status === 200) {
       login({key: data.token, type: data.type});
     } 
-    else error(data.msg);
+    else error({type:0, msg: data.msg});
   };
 
   return (

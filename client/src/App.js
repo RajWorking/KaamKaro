@@ -1,7 +1,8 @@
-import Dashboard from './components/Applicant';
+import Applicant from './Applicant/DashBoard';
+import Recruiter from './Recruiter/DashBoard';
 import ErrMsg from './components/ErrorAlert';
 import Login from './Login';
-import { BrowserRouter as Router, Route } from 'react-router-dom'; // Redirect
+import { BrowserRouter as Router } from 'react-router-dom'; // Redirect
 import { useState } from 'react';
 
 import useToken from './useToken';
@@ -28,16 +29,14 @@ function App() {
 
   return (
     <Router>
-        <h1 className="raj-center">Job Application Portal</h1>
-        <ErrMsg handleClose={unshow} msg={error} />
-        <Route path="/" exact>
-          {token?.type ? (
-            <Dashboard error={Error} />
-          ) : (
-            <Login error={Error} login={setToken} />
-          )}
-        </Route>
-        {logout}
+      <h1 className="raj-center">Job Application Portal</h1>
+      <ErrMsg handleClose={unshow} msg={error} />
+
+      {(token?.type === '' || token === null) && <Login error={Error} login={setToken} />}
+      {token?.type === 'applicants' && <Applicant error={Error} />}
+      {token?.type === 'recruiters' && <Recruiter error={Error} />}
+
+      {logout}
     </Router>
   );
 }

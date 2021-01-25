@@ -32,7 +32,7 @@ const Job = ({ job, onApply }) => {
         <Paper className={classes.paper}>
           <b>{job.title}</b> having salary <b>${job.salary}</b> for duration of <b>{job.duration}</b> months and requiring skills
           such as {job.req_skills.map((skill) => (
-            <>{skill}, </>
+            <b>{skill}, </b>
           ))}
         </Paper>
       </Grid>

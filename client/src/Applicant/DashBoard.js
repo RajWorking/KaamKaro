@@ -61,6 +61,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function NavTabs({ error }) {
   const classes = useStyles();
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -71,31 +72,22 @@ export default function NavTabs({ error }) {
   const { token } = useToken();
 
   useEffect(() => {
-    const fetchApplications = async () => {
+    const loadApplications = async () => {
       const res = await fetch('http://127.0.0.1:5000/api/applicants/myapplications', {
         headers: {
           'x-auth-token': token.key,
         },
       });
-      const data = await res.json();
-      return data;
+      const rows_list = await res.json();
+      setApplications(rows_list);
     };
-    const fetchJobs = async () => {
+    const loadJobs = async () => {
       const res = await fetch('http://localhost:5000/api/jobs/view', {
         headers: {
           'x-auth-token': token.key,
         },
       });
-      const data = await res.json();
-      return data;
-    };
-
-    const loadApplications = async () => {
-      const rows_list = await fetchApplications();
-      setApplications(rows_list);
-    };
-    const loadJobs = async () => {
-      const jobs_list = await fetchJobs();
+      const jobs_list = await res.json();
       setJobs(jobs_list);
     };
     loadJobs();
@@ -114,22 +106,21 @@ export default function NavTabs({ error }) {
         sop: sopText,
       }),
     });
-    console.log(res.status);
     const data = await res.json();
 
     if (res.status !== 400) {
       setApplications([...applications, data]);
       setJobs(jobs.map((job) => (job._id === id ? { ...job, status: 'Applied' } : job)));
-    } else console.log(error(data.msg));
+    } else error(data.msg);
   };
 
   return (
     <div className={classes.root}>
       <AppBar position="static">
         <Tabs variant="fullWidth" value={value} onChange={handleChange} aria-label="nav tabs example">
-          <LinkTab label="View Jobs" href="/drafts" {...a11yProps(0)} />
-          <LinkTab label="My Applications" href="/trash" {...a11yProps(1)} />
-          <LinkTab label="Profile" href="/spam" {...a11yProps(2)} />
+          <LinkTab label="View Jobs" {...a11yProps(0)} />
+          <LinkTab label="My Applications" {...a11yProps(1)} />
+          <LinkTab label="Profile" {...a11yProps(2)} />
         </Tabs>
       </AppBar>
       <TabPanel value={value} index={0}>

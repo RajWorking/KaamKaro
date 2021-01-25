@@ -1,4 +1,3 @@
-import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Job from './Job'
 
@@ -20,3 +19,4 @@ const FullWidthGrid = ({jobs, onApply}) => {
 };
 
 export default FullWidthGrid;
+

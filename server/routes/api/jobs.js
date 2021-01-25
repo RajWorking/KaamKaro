@@ -35,6 +35,9 @@ router.post('/add', auth, async (req, res) => {
 
     const { title, max_applications, max_positions, deadline, req_skills, job_type, duration, salary } = req.body;
 
+    console.log(req.body)
+    if(salary < 0) throw Error('Unfair play!')
+
     const newJob = new Job({
       title,
       max_applications,
@@ -50,11 +53,7 @@ router.post('/add', auth, async (req, res) => {
     const savedJob = await newJob.save();
     if (!savedJob) throw Error('Messed up creating job');
 
-    res.status(201).json({
-      id: savedJob._id,
-      title: savedJob.title,
-      recruiter: savedJob.recruiter,
-    });
+    res.status(201).json(savedJob);
   } catch (e) {
     res.status(400).json({ msg: e.message });
   }
@@ -79,9 +78,9 @@ router
       const job = await Job.findById(req.params.id);
       if (!job) throw Error('Invalid job id');
 
-      const job_st = await Application.countDocuments({ job: job._id });
-      if (job.status == 'Full') throw Error('Full');
-      else if (job_st+1 >= job.max_applications) job.status = 'Full';
+      const recieved_applications = await Application.countDocuments({ job: job._id, status: { $ne: 'Rejected' } });
+      if (job.status === 'Full' || job.status === 'Complete') throw Error('Full');
+      else if (recieved_applications + 1 >= job.max_applications) job.status = 'Full';
       await Job.updateOne({ _id: req.params.id }, job);
 
       if (job.deadline.getTime() < Date.now()) throw Error('Deadline passed');
@@ -118,7 +117,7 @@ router
     try {
       const user = await Recruiter.findById(req.user.id);
       if (!user) throw Error('Invalid Recruiter');
-      const applications_list = await Application.find({ job: req.params.id }).populate('applicant');
+      const applications_list = await Application.find({ job: req.params.id, status: { $ne: 'Rejected' } }).populate('applicant');
       res.status(200).json(applications_list);
     } catch (e) {
       res.status(400).json({ msg: e.message });
@@ -178,34 +177,3 @@ router
   });
 
 module.exports = router;
-
-router.patch('/decide/:id', auth, async (req, res) => {
-  try {
-    const user = await Recruiter.findById(req.user.id);
-    if (!user) throw Error('Invalid Recruiter');
-
-    const application = await Application.findById(req.params.id);
-    if (!application) throw Error('No such Application');
-
-    const job = await Job.findById(application.job);
-    if (!job) throw Error('Application has no job');
-
-    const recieved_applications = await Application.find({ job: job._id, status: 'Applied' });
-    if (recieved_applications >= job.max_applications) job.status = 'Full';
-
-    const accepted_applications = await Application.find({ job: job._id, status: 'Accepted' });
-    if (accepted_applications >= job.max_positions) {
-      job.status = 'Complete';
-      await Application.updateMany({ status: { $not: 'Accepted' } }, { $set: { status: 'Rejected' } });
-    }
-
-    application.status = req.body.status;
-    if (application.status == 'Accept') {
-      application.joining_date = new Date();
-    }
-
-    res.status(200).json({ id: application._id, status: application.status });
-  } catch (e) {
-    res.status(400).json({ msg: e.message });
-  }
-});
