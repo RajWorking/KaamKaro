@@ -7,7 +7,7 @@ const router = express.Router();
 
 const User = require('../../models/Applicants');
 const Application = require('../../models/Applications');
-const Job = require('../../models/Jobs')
+const Job = require('../../models/Jobs');
 
 router.get('/all', (req, res) => {
   User.find().then((items) => res.json(items));
@@ -45,14 +45,10 @@ router.post('/register', async (req, res) => {
 
     res.status(201).json({
       token,
-      user: {
-        id: savedUser.id,
-        name: savedUser.name,
-        email: savedUser.email,
-      },
+      type: 'applicants',
     });
   } catch (e) {
-    res.status(400).json({ error: e.message });
+    res.status(400).json({ msg: e.message });
   }
 });
 
@@ -69,8 +65,8 @@ router.get('/myapplications', auth, async (req, res) => {
         model: 'recruiters',
       },
     });
-    
-    res.status(200).json(application)
+
+    res.status(200).json(application);
   } catch (e) {
     res.status(400).json({ msg: e.message });
   }

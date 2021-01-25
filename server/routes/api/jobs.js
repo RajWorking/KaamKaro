@@ -35,7 +35,6 @@ router.post('/add', auth, async (req, res) => {
 
     const { title, max_applications, max_positions, deadline, req_skills, job_type, duration, salary } = req.body;
 
-    console.log(req.body)
     if(salary < 0) throw Error('Unfair play!')
 
     const newJob = new Job({

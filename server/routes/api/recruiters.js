@@ -48,14 +48,10 @@ router.post('/register', async (req, res) => {
 
     res.status(200).json({
       token,
-      user: {
-        id: savedUser.id,
-        name: savedUser.name,
-        email: savedUser.email,
-      },
+      type: "recruiters"
     });
   } catch (e) {
-    res.status(400).json({ error: e.message });
+    res.status(400).json({ msg: e.message });
   }
 });
 
@@ -90,8 +86,10 @@ router.get('/employees', auth, async (req, res) => {
     if (!user) throw Error('You cannot post a job');
 
     const jobs = await Job.find({ recruiter: user._id });
-    const job_ids = jobs.map((job) => job._id)
-    const employees = await Application.find({ status: 'Accepted', job: {$in : job_ids} }).populate('job').populate('applicant')
+    const job_ids = jobs.map((job) => job._id);
+    const employees = await Application.find({ status: 'Accepted', job: { $in: job_ids } })
+      .populate('job')
+      .populate('applicant');
 
     res.status(200).json(employees);
   } catch (e) {

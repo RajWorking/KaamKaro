@@ -1,6 +1,7 @@
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Login = ({ login, error }) => {
   const [email, setEmail] = useState('');
@@ -21,9 +22,8 @@ const Login = ({ login, error }) => {
     });
     const data = await res.json();
     if (res.status === 200) {
-      login({key: data.token, type: data.type});
-    } 
-    else error({type:0, msg: data.msg});
+      login({ key: data.token, type: data.type });
+    } else error(data.msg);
   };
 
   return (
@@ -55,7 +55,9 @@ const Login = ({ login, error }) => {
       <Button type="submit" variant="contained" color="primary">
         SIGN IN
       </Button>
-      <a href="/" align="left">First time here?</a>
+      <Link to="/register" align="left">
+        First time here?
+      </Link>
       <br />
 
       <br />
