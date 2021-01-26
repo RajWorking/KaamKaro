@@ -30,7 +30,7 @@ const Job = ({ job, onApply }) => {
     <Grid container spacing={3} className="raj-center">
       <Grid item xs={10}>
         <Paper className={classes.paper}>
-          <b>{job.recruiter.name}</b> wants to hire <b>{job.title}</b> with salary <b>${job.salary}</b> for duration of{' '}
+          <b>{job.recruiter.name}</b> wants to hire <b>{job.title}</b> ({job.avg_rating} stars) with salary <b>${job.salary}</b> for duration of{' '}
           <b>{job.duration}</b> months and requiring skills such as{' '}
           {job.req_skills.map((skill) => (
             <b>{skill}, </b>

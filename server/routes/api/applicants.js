@@ -56,7 +56,15 @@ router
   .get(auth, async (req, res) => {
     try {
       const user = await User.findById(req.user.id);
-      res.status(200).json(user);
+      const fix_user = user.toObject();
+
+      var value = await Application.aggregate([
+        { $match: { status: 'Accepted', applicant: user._id } },
+        { $group: { _id: '$user', avg: { $avg: '$rating_applicant' } } },
+      ]);
+      fix_user.avg_rating = value.length == 0 ? 'unrated' : value[0].avg;
+
+      res.status(200).json(fix_user);
     } catch (e) {
       res.status(400).json({ msg: e.message });
     }

@@ -16,6 +16,8 @@ const Profile = ({ error }) => {
   const [addi_skills, setAddi_skills] = useState('');
   const [edu, setEdu] = useState(false);
   const [education, setEducation] = useState([]);
+  const [rating, setRating] = useState([]);
+
   const { token } = useToken();
 
   useEffect(() => {
@@ -32,6 +34,7 @@ const Profile = ({ error }) => {
         setName(data.name);
         setEducation(data.education);
         setSkills(data.skills);
+        setRating(data.avg_rating)
       } else error(data.msg);
     };
     getProfile();
@@ -123,6 +126,9 @@ const Profile = ({ error }) => {
         value={addi_skills}
         onChange={(val) => setAddi_skills(val.target.value)}
       />
+      <br />
+
+      <TextField required label="Rating" variant="outlined" value={rating} disabled />
       <br />
 
       <Button type="submit" variant="contained" color="primary">

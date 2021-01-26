@@ -81,6 +81,7 @@ const Jobs = ({ jobs, erase, onApply }) => {
               </MenuItem>
               <MenuItem value={'salary'}>Salary</MenuItem>
               <MenuItem value={'duration'}>Duration</MenuItem>
+              <MenuItem value={'rating'}>Rating</MenuItem>
             </Select>
           </FormControl>
           <FormControl className={classes.formControl} disabled={sort_by === 'None'}>
@@ -136,9 +137,10 @@ const Jobs = ({ jobs, erase, onApply }) => {
       </div>
       <br />
       {jobs
-        .sort(function(a, b){
+        .sort(function (a, b) {
           if (sort_by === 'salary') return order_by * (a.salary - b.salary);
           else if (sort_by === 'duration') return order_by * (a.duration - b.duration);
+          else if (sort_by === 'rating') return order_by * (a.avg_rating - b.avg_rating);
           else return 0;
         })
         .map((job) => custom(job) && <Job job={job} erase={erase} onApply={onApply} />)}

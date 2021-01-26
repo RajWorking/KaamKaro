@@ -38,7 +38,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function CustomizedTables({ error, change }) {
+export default function CustomizedTables({ error }) {
   const classes = useStyles();
 
   const [employees, setEmployees] = useState([]);

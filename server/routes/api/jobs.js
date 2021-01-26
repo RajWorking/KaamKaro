@@ -15,9 +15,15 @@ router.get('/view', auth, async (req, res) => {
     const job_list = await Job.find({ deadline: { $gte: new Date() } }).populate('recruiter');
 
     const changedJob = async (job) => {
+      const fix_job = job.toObject();
       const existing = await Application.countDocuments({ applicant: user._id, job: job._id });
-      if (existing) job.status = 'Applied';
-      return job;
+      if (existing) fix_job.status = 'Applied';
+      var value = await Application.aggregate([
+        { $match: { status: 'Accepted', job: job._id } },
+        { $group: { _id: '$job', avg: { $avg: '$rating_recruiter' } } },
+      ]);
+      fix_job.avg_rating = value.length==0?'unrated':value[0].avg
+      return fix_job;
     };
 
     const data = await Promise.all(job_list.map((job) => changedJob(job)));
@@ -36,8 +42,8 @@ router.post('/add', auth, async (req, res) => {
     const { title, max_applications, max_positions, deadline, req_skills, job_type, duration, salary } = req.body;
 
     if (salary < 0) throw Error('Unfair play!');
-    if(max_applications<=0 || max_positions<=0) throw Error('Illogical...')
-    if(!job_type || !duration ) throw Error('Please Enter all details')
+    if (max_applications <= 0 || max_positions <= 0) throw Error('Illogical...');
+    if (!job_type || !duration) throw Error('Please Enter all details');
 
     const newJob = new Job({
       title,
