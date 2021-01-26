@@ -2,6 +2,7 @@ import Jobs from './Jobs';
 import Applications from './Applications'
 import AddJob from './AddJob'
 import Employees from './Employees' 
+import Profile from './Profile'
 
 import { useState, useEffect } from 'react';
 import useToken from '../useToken';
@@ -105,6 +106,22 @@ export default function NavTabs({ error }) {
     } else error(data.msg);
   }
 
+  const editJob = async(job_id, details) => {
+    const res = await fetch(`http://localhost:5000/api/jobs/${job_id}`,{
+      method: 'PATCH',
+      headers: {
+        'x-auth-token': token.key,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(details)
+    })
+    const data = await res.json();
+
+    if (res.status !== 400) {
+      setJobs(jobs.map((job) => job._id===job_id?data:job));
+    } else error(data.msg);
+  }
+
 
   const deleteJob = async (id) => {
     const res = await fetch(`http://localhost:5000/api/jobs/${id}`, {
@@ -135,7 +152,7 @@ export default function NavTabs({ error }) {
           </Tabs>
         </AppBar>
         <TabPanel value={value} index={0}>
-          <Jobs jobs={jobs} erase={deleteJob} />
+          <Jobs jobs={jobs} erase={deleteJob} edit={editJob}/>
         </TabPanel>
         <TabPanel value={value} index={1}>
           <AddJob onSubmit={addJob} error={error}/>
@@ -144,11 +161,11 @@ export default function NavTabs({ error }) {
           <Employees />
         </TabPanel>
         <TabPanel value={value} index={3}>
-          Page Three
+          <Profile error= {error}/>
         </TabPanel>
       </Route>
 
-      <Route path="/applications/:id">{token?.type === 'recruiters' && <Applications error={error} reload={loadJobs}/>}</Route>
+      <Route path="/applications/:id">{token?.type === 'recruiters' && <Applications error={error}/>}</Route>
       <br />
     </Router>
   );

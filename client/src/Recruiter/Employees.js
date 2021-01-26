@@ -7,6 +7,10 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 import useToken from '../useToken';
 
 const StyledTableCell = withStyles((theme) => ({
@@ -37,7 +41,16 @@ export default function CustomizedTables({ error }) {
   const classes = useStyles();
 
   const [employees, setEmployees] = useState([]);
+  const [sort_by, setSort_by] = useState('None');
+  const [order_by, setOrder_by] = useState(1);
   const { token } = useToken();
+
+  const handleSort = (event) => {
+    setSort_by(event.target.value);
+  };
+  const handleOrder = (event) => {
+    setOrder_by(event.target.value);
+  };
 
   const loadEmployees = async () => {
     const res = await fetch(`http://localhost:5000/api/recruiters/employees`, {
@@ -58,6 +71,7 @@ export default function CustomizedTables({ error }) {
   });
 
   return (
+    <>
       <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="customized table">
           <TableHead>
@@ -69,21 +83,54 @@ export default function CustomizedTables({ error }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {employees.map((row) => (
-              <StyledTableRow key={row._id}>
-                <StyledTableCell component="th" scope="row">
-                  {row.applicant.name}
-                </StyledTableCell>
-                <StyledTableCell align="right">{row.joining_date.substring(0, 10)}</StyledTableCell>
-                <StyledTableCell align="right">
-                  {row.job.job_type}
-                </StyledTableCell>
-                <StyledTableCell align="right">{row.job.title}</StyledTableCell>
-                
-              </StyledTableRow>
-            ))}
+            {[...employees]
+              .sort(function (a, b) {
+                if (sort_by === 'name')
+                  return order_by * (a.applicant.name.toUpperCase() > b.applicant.name.toUpperCase() ? 1 : -1);
+                else if (sort_by === 'title') return order_by * (a.job.title.toUpperCase() > b.job.title.toUpperCase() ? 1 : -1);
+                else if (sort_by === 'doj') return order_by * (Date.parse(a.joining_date) > Date.parse(b.joining_date) ? 1 : -1);
+                else return 0;
+              })
+              .map((row) => (
+                <StyledTableRow key={row._id}>
+                  <StyledTableCell component="th" scope="row">
+                    {row.applicant && row.applicant.name}
+                  </StyledTableCell>
+                  <StyledTableCell align="right">{row.joining_date.substring(0, 10)}</StyledTableCell>
+                  <StyledTableCell align="right">{row.job.job_type}</StyledTableCell>
+                  <StyledTableCell align="right">{row.job.title}</StyledTableCell>
+                </StyledTableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
+
+      <br />
+      <div className="tool-box">
+        <br />
+        <div>
+          <FormControl className={classes.formControl}>
+            <InputLabel shrink>Sort by</InputLabel>
+            <Select value={sort_by} onChange={handleSort} displayEmpty className={classes.selectEmpty}>
+              <MenuItem value={'None'}>
+                <em>None</em>
+              </MenuItem>
+              <MenuItem value={'name'}>Name</MenuItem>
+              <MenuItem value={'title'}>Job Title</MenuItem>
+              <MenuItem value={'doj'}>Date of joining</MenuItem>
+            </Select>
+          </FormControl>{' '}
+          <FormControl className={classes.formControl} disabled={sort_by === 'None'}>
+            <InputLabel shrink>Order by</InputLabel>
+
+            <Select value={order_by} onChange={handleOrder} displayEmpty className={classes.selectEmpty}>
+              <MenuItem value={1}>Ascending</MenuItem>
+              <MenuItem value={-1}>Descending</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+        <br />
+      </div>
+    </>
   );
 }

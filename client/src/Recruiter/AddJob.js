@@ -70,6 +70,7 @@ const AddJob = ({ onSubmit }) => {
         label="Max Applications"
         variant="outlined"
         value={max_applications}
+        type="number"
         onChange={(val) => setMax_applications(val.target.value)}
       />
       <br />
@@ -79,6 +80,7 @@ const AddJob = ({ onSubmit }) => {
         label="Max Positions"
         variant="outlined"
         value={max_positions}
+        type="number"
         onChange={(val) => setMax_positions(val.target.value)}
       />
       <br />
@@ -140,7 +142,7 @@ const AddJob = ({ onSubmit }) => {
       />
       <br />
 
-      <Calendar label="Deadline" selectedDate={deadline} handleDateChange={setDeadline} />
+      <Calendar label="Deadline" selectedDate={deadline} handleDateChange={setDeadline} pos="space-around" />
       <br />
 
       <Button type="submit" variant="contained" color="primary">

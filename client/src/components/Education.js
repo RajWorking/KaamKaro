@@ -10,8 +10,8 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 export default function FormDialog({ open, close, add }) {
-  const [st_year, setSt_year] = useState('----');
-  const [end_year, setEnd_year] = useState('----');
+  const [st_year, setSt_year] = useState('');
+  const [end_year, setEnd_year] = useState('');
   const [insti, setInsti] = useState('');
 
   const handleClose = () => {
@@ -36,7 +36,6 @@ export default function FormDialog({ open, close, add }) {
           />
           from{' '}
           <YearPicker
-            defaultValue={'----'}
             start={1970} // default is 1900
             end={2020} // default is current year
             reverse // default is ASCENDING
@@ -45,10 +44,8 @@ export default function FormDialog({ open, close, add }) {
             onChange={(year) => {
               setSt_year(year);
             }}
-          />{' '}
-          to{' '}
+          />{' to '}
           <YearPicker
-            defaultValue={'----'}
             start={1970} // default is 1900
             end={2020} // default is current year
             reverse // default is ASCENDING

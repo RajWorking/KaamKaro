@@ -3,10 +3,10 @@ import Grid from '@material-ui/core/Grid';
 import DateFnsUtils from '@date-io/date-fns';
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 
-export default function Calendar({label, selectedDate, handleDateChange}) {
+export default function Calendar({label, selectedDate, handleDateChange, pos}) {
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
-      <Grid container justify="space-around">
+      <Grid container justify={pos}>
         <KeyboardDatePicker
           margin="normal"
           id="date-picker-dialog"

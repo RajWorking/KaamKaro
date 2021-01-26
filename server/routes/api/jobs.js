@@ -12,7 +12,7 @@ router.get('/view', auth, async (req, res) => {
   try {
     const user = await Applicant.findById(req.user.id);
     if (!user) throw Error('Invalid Applicant');
-    const job_list = await Job.find({ deadline: { $gte: new Date() } });
+    const job_list = await Job.find({ deadline: { $gte: new Date() } }).populate('recruiter');
 
     const changedJob = async (job) => {
       const existing = await Application.countDocuments({ applicant: user._id, job: job._id });
@@ -35,7 +35,9 @@ router.post('/add', auth, async (req, res) => {
 
     const { title, max_applications, max_positions, deadline, req_skills, job_type, duration, salary } = req.body;
 
-    if(salary < 0) throw Error('Unfair play!')
+    if (salary < 0) throw Error('Unfair play!');
+    if(max_applications<=0 || max_positions<=0) throw Error('Illogical...')
+    if(!job_type || !duration ) throw Error('Please Enter all details')
 
     const newJob = new Job({
       title,
@@ -134,27 +136,20 @@ router
       res.status(400).json({ msg: e.message });
     }
   })
-  .put(auth, async (req, res) => {
+  .patch(auth, async (req, res) => {
     try {
       const user = await Recruiter.findById(req.user.id);
+      const id = req.params.id;
+
       if (!user) throw Error('Invalid Recruiter');
 
-      const { title, max_applications, max_positions, deadline, req_skills, job_type, duration, salary } = req.body;
+      const { max_applications, max_positions, deadline } = req.body;
+      console.log(req.body);
 
-      const updatedJob = new Job({
-        title,
-        max_applications,
-        max_positions,
-        deadline: new Date(deadline),
-        req_skills,
-        job_type,
-        duration,
-        salary,
-        recruiter: user._id,
-      });
+      if (!max_applications || !max_positions || !deadline) throw Error('Missing details.');
 
-      const accepted_applications = await Application.find({ job: updated._id, status: 'Accepted' });
-      const recieved_applications = await Application.find({ job: updated._id, status: 'Applied' });
+      const accepted_applications = await Application.countDocuments({ job: id, status: 'Accepted' });
+      const recieved_applications = await Application.countDocuments({ job: id, status: { $ne: 'Rejected' } });
 
       if (accepted_applications > max_positions) throw Error('Invalid operation');
       else if (accepted_applications == max_positions) status = 'Completed';
@@ -163,13 +158,12 @@ router
         else if (recieved_applications > max_applications) throw Error('Invalid operation');
         else status = 'Full';
       }
-
-      const updated = await Job.findOneAndUpdate({ _id: req.params.id }, updatedJob, {
-        new: true,
-      });
-      if (!updated) throw Error('Unknown job');
-
-      res.status(200).json(updated);
+      await Job.updateOne(
+        { _id: id },
+        { $set: { max_applications: max_applications, max_positions: max_positions, deadline: new Date(deadline) } }
+      );
+      const job = await Job.findById(id);
+      res.status(200).json(job);
     } catch (e) {
       res.status(400).json({ msg: e.message });
     }

@@ -28,10 +28,12 @@ const Register = ({ login, error }) => {
 
   const Add_Edu = (edu_instance) => {
     const { start_year, end_year, institute } = edu_instance;
-    if (start_year === '----' || institute === '') error('Where did you study? and when?');
-    else if (end_year !== '----' && start_year > end_year) error('Show me your time-machine.');
-    else setEducation(education.concat(edu_instance));
+    if (start_year === '' || institute === '') error('Where did you study? and when?');
+    else if (end_year === '') setEducation(education.concat({ ...edu_instance, end_year: '----' }));
+    else if (start_year < end_year) setEducation(education.concat(edu_instance));
+    else error('Show me your time-machine.');
   };
+
   const Remove_Edu = (id) => {
     setEducation(
       Object.keys(education)
@@ -68,7 +70,7 @@ const Register = ({ login, error }) => {
           password: password,
           name: name,
           education: education,
-          skills: skills.concat(addi_skills.split(',')),
+          skills: addi_skills.length > 0 ? skills.concat(addi_skills.split(',')) : skills,
         }),
       });
     } else {
@@ -77,7 +79,6 @@ const Register = ({ login, error }) => {
     }
 
     const data = await res.json();
-    console.log(data)
     if (res.status === 400) error(data.msg);
     else {
       setSkills([]);

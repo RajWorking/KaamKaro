@@ -6,6 +6,7 @@ const auth = require('../../middleware/auth');
 const router = express.Router();
 
 const User = require('../../models/Applicants');
+const Account = require('../../models/Accounts');
 const Application = require('../../models/Applications');
 const Job = require('../../models/Jobs');
 
@@ -16,7 +17,7 @@ router.get('/all', (req, res) => {
 router.post('/register', async (req, res) => {
   const { name, email, password, skills, education } = req.body;
 
-  if (!name || !email || !password || !education) {
+  if (!name || !email || !password) {
     return res.status(400).json({ msg: 'Please enter all required fields' });
   }
 
@@ -51,6 +52,49 @@ router.post('/register', async (req, res) => {
     res.status(400).json({ msg: e.message });
   }
 });
+router
+  .route('/profile')
+  .get(auth, async (req, res) => {
+    try {
+      const user = await User.findById(req.user.id);
+      res.status(200).json(user);
+    } catch (e) {
+      res.status(400).json({ msg: e.message });
+    }
+  })
+  .put(auth, async (req, res) => {
+    const { name, email, password, skills, education } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ msg: 'Please enter all required fields' });
+    }
+
+    try {
+      const user = await Account.findOne({ email });
+      if (user !== null && user._id != req.user.id) throw Error('Already existing account');
+
+      const salt = await bcrypt.genSalt(10);
+      if (!salt) throw Error('Messed up Bcrypt');
+
+      const hash = await bcrypt.hash(password, salt);
+      if (!hash) throw Error('Messed up in hashing password');
+
+      const newUser = new User({
+        _id: req.user.id,
+        name,
+        email,
+        education,
+        skills,
+        password: hash,
+      });
+
+      await User.updateOne({ _id: req.user.id }, newUser);
+
+      res.status(201).json(newUser);
+    } catch (e) {
+      res.status(400).json({ msg: e.message });
+    }
+  });
 
 router.get('/myapplications', auth, async (req, res) => {
   try {

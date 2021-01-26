@@ -14,3 +14,14 @@
   margin: auto;
   width: 30%
 }
+
+.tool-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border: 1px solid brown;
+  border-radius: 20px;
+  margin: auto;
+  width: 30%
+}

@@ -27,11 +27,12 @@ const Job = ({ job, onApply }) => {
   const [sop, setSOP] = useState('');
 
   return (
-    <Grid container spacing={3} className='raj-center'>
+    <Grid container spacing={3} className="raj-center">
       <Grid item xs={10}>
         <Paper className={classes.paper}>
-          <b>{job.title}</b> having salary <b>${job.salary}</b> for duration of <b>{job.duration}</b> months and requiring skills
-          such as {job.req_skills.map((skill) => (
+          <b>{job.recruiter.name}</b> wants to hire <b>{job.title}</b> with salary <b>${job.salary}</b> for duration of{' '}
+          <b>{job.duration}</b> months and requiring skills such as{' '}
+          {job.req_skills.map((skill) => (
             <b>{skill}, </b>
           ))}
         </Paper>

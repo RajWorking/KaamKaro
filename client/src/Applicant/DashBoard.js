@@ -1,5 +1,6 @@
 import MyApplications from './MyApplications';
 import Jobs from './Jobs';
+import Profile from './Profile';
 
 import { useState, useEffect } from 'react';
 import useToken from '../useToken';
@@ -94,7 +95,6 @@ export default function NavTabs({ error }) {
     loadApplications();
   }, [token]);
 
-
   const Submit = async (id, sopText) => {
     const res = await fetch(`http://localhost:5000/api/jobs/${id}`, {
       method: 'POST',
@@ -130,7 +130,7 @@ export default function NavTabs({ error }) {
         <MyApplications rows={applications} />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        Page Three
+        <Profile error={error} />
       </TabPanel>
     </div>
   );

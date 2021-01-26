@@ -8,6 +8,7 @@ const router = express.Router();
 const auth = require('../../middleware/auth');
 
 const User = require('../../models/Recruiters');
+const Account = require('../../models/Accounts');
 const Job = require('../../models/Jobs');
 const Application = require('../../models/Applications');
 const Recruiter = require('../../models/Recruiters');
@@ -15,6 +16,50 @@ const Recruiter = require('../../models/Recruiters');
 router.get('/all', (req, res) => {
   User.find().then((items) => res.json(items));
 });
+
+router
+  .route('/profile')
+  .get(auth, async (req, res) => {
+    try {
+      const user = await User.findById(req.user.id);
+      res.status(200).json(user);
+    } catch (e) {
+      res.status(400).json({ msg: e.message });
+    }
+  })
+  .put(auth, async (req, res) => {
+    const { name, email, password, bio, contact } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ msg: 'Please enter all required fields' });
+    }
+
+    try {
+      const user = await Account.findOne({ email });
+      if (user !== null && user._id != req.user.id) throw Error('Already existing account');
+
+      const salt = await bcrypt.genSalt(10);
+      if (!salt) throw Error('Messed up Bcrypt');
+
+      const hash = await bcrypt.hash(password, salt);
+      if (!hash) throw Error('Messed up in hashing password');
+
+      const newUser = new User({
+        _id: req.user.id,
+        name,
+        email,
+        bio,
+        contact,
+        password: hash,
+      });
+
+      await User.updateOne({ _id: req.user.id }, newUser);
+
+      res.status(201).json(newUser);
+    } catch (e) {
+      res.status(400).json({ msg: e.message });
+    }
+  });
 
 router.post('/register', async (req, res) => {
   const { name, email, password, contact, bio } = req.body;
@@ -48,7 +93,7 @@ router.post('/register', async (req, res) => {
 
     res.status(200).json({
       token,
-      type: "recruiters"
+      type: 'recruiters',
     });
   } catch (e) {
     res.status(400).json({ msg: e.message });
