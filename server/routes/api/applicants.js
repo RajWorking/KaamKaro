@@ -8,7 +8,6 @@ const router = express.Router();
 const User = require('../../models/Applicants');
 const Account = require('../../models/Accounts');
 const Application = require('../../models/Applications');
-const Job = require('../../models/Jobs');
 
 router.get('/all', (req, res) => {
   User.find().then((items) => res.json(items));
@@ -111,6 +110,19 @@ router.get('/myapplications', auth, async (req, res) => {
     });
 
     res.status(200).json(application);
+  } catch (e) {
+    res.status(400).json({ msg: e.message });
+  }
+});
+
+router.patch('/rate/:id', auth, async (req, res) => {
+  try {
+    const { rating } = req.body;
+    if (!rating) throw Error('Give some rating');
+
+    await Application.updateOne({ _id: req.params.id }, { $set: { rating_recruiter: rating } });
+
+    res.status(200).json({ rating: rating });
   } catch (e) {
     res.status(400).json({ msg: e.message });
   }

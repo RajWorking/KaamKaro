@@ -107,6 +107,7 @@ export default function NavTabs({ error }) {
   }
 
   const editJob = async(job_id, details) => {
+    console.log('here2')
     const res = await fetch(`http://localhost:5000/api/jobs/${job_id}`,{
       method: 'PATCH',
       headers: {
@@ -121,7 +122,6 @@ export default function NavTabs({ error }) {
       setJobs(jobs.map((job) => job._id===job_id?data:job));
     } else error(data.msg);
   }
-
 
   const deleteJob = async (id) => {
     const res = await fetch(`http://localhost:5000/api/jobs/${id}`, {

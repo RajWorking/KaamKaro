@@ -188,4 +188,17 @@ router.patch('/decide/:id', auth, async (req, res) => {
   }
 });
 
+router.patch('/rate/:id', auth, async (req, res) => {
+  try {
+    const { rating } = req.body;
+    if (!rating) throw Error('Give some rating');
+
+    await Application.updateOne({ _id: req.params.id }, { $set: { rating_applicant: rating } });
+
+    res.status(200).json({ rating: rating });
+  } catch (e) {
+    res.status(400).json({ msg: e.message });
+  }
+});
+
 module.exports = router;

@@ -7,6 +7,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import Rating from '@material-ui/lab/Rating';
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -32,7 +33,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function CustomizedTables({rows}) {
+export default function CustomizedTables({ rows, change }) {
   const classes = useStyles();
 
   return (
@@ -46,6 +47,7 @@ export default function CustomizedTables({rows}) {
             <StyledTableCell align="right">Name of Recruiter</StyledTableCell>
             <StyledTableCell align="right">SOP</StyledTableCell>
             <StyledTableCell align="right">Status</StyledTableCell>
+            <StyledTableCell align="right">Rating</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -59,6 +61,15 @@ export default function CustomizedTables({rows}) {
               <StyledTableCell align="right">{row.job.recruiter.name}</StyledTableCell>
               <StyledTableCell align="right">{row.sop}</StyledTableCell>
               <StyledTableCell align="right">{row.status}</StyledTableCell>
+              <StyledTableCell align="right">
+              <Rating
+                value={row.rating_recruiter}
+                disabled={!(row.status==='Accepted')}
+                onChange={(event, newValue) => {
+                  change(row._id, newValue);
+                }}
+              />
+              </StyledTableCell>
             </StyledTableRow>
           ))}
         </TableBody>

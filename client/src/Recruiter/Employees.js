@@ -12,6 +12,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import useToken from '../useToken';
+import Rating from '@material-ui/lab/Rating';
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -37,7 +38,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function CustomizedTables({ error }) {
+export default function CustomizedTables({ error, change }) {
   const classes = useStyles();
 
   const [employees, setEmployees] = useState([]);
@@ -70,6 +71,23 @@ export default function CustomizedTables({ error }) {
     fetchEmployees();
   });
 
+  const setRating = async (id, rate) => {
+    console.log(id, rate);
+    const res = await fetch(`http://localhost:5000/api/recruiters/rate/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'x-auth-token': token.key,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ rating: rate }),
+    });
+    const data = await res.json();
+
+    if (res.status !== 400) {
+      setEmployees(employees.map((appl) => (appl._id === id ? { ...appl, rating_applicant: data.rating } : appl)));
+    } else error(data.msg);
+  };
+
   return (
     <>
       <TableContainer component={Paper}>
@@ -80,6 +98,7 @@ export default function CustomizedTables({ error }) {
               <StyledTableCell align="right">Date of Joining</StyledTableCell>
               <StyledTableCell align="right">Job-type</StyledTableCell>
               <StyledTableCell align="right">Job-title</StyledTableCell>
+              <StyledTableCell align="right">Rating</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -99,6 +118,15 @@ export default function CustomizedTables({ error }) {
                   <StyledTableCell align="right">{row.joining_date.substring(0, 10)}</StyledTableCell>
                   <StyledTableCell align="right">{row.job.job_type}</StyledTableCell>
                   <StyledTableCell align="right">{row.job.title}</StyledTableCell>
+                  <StyledTableCell align="right">
+                    <Rating
+                      value={row.rating_applicant}
+                      disabled={!(row.status === 'Accepted')}
+                      onChange={(event, newValue) => {
+                        setRating(row._id, newValue);
+                      }}
+                    />
+                  </StyledTableCell>
                 </StyledTableRow>
               ))}
           </TableBody>

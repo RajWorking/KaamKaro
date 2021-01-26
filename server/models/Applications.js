@@ -32,6 +32,14 @@ const ApplicationSchema = new Schema({
   application_date: {
     type: Date,
     default: Date.now()
+  },
+  rating_applicant: {
+    type: Number,
+    default: 0
+  },
+  rating_recruiter: {
+    type: Number,
+    default: 0
   }
 });
 

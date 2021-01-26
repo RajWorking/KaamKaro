@@ -34,6 +34,7 @@ export default function SimpleCard({ job, erase, edit }) {
   const [deadline, setDeadline] = useState(job.deadline);
 
   const detailsEdit = () => {
+    console.log('here')
     edit(job._id, { max_applications: max_applications, max_positions: max_positions, deadline: deadline });
     setMode(false);
   };

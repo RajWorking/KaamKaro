@@ -95,6 +95,23 @@ export default function NavTabs({ error }) {
     loadApplications();
   }, [token]);
 
+  const setRating = async (id, rate) => {
+    console.log(id, rate)
+    const res = await fetch(`http://localhost:5000/api/applicants/rate/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'x-auth-token': token.key,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ rating: rate }),
+    });
+    const data = await res.json();
+
+    if (res.status !== 400) {
+      setApplications(applications.map((appl) => (appl._id === id ? {...appl, rating_recruiter: data.rating} : appl)));
+    } else error(data.msg);
+  };
+
   const Submit = async (id, sopText) => {
     const res = await fetch(`http://localhost:5000/api/jobs/${id}`, {
       method: 'POST',
@@ -127,7 +144,7 @@ export default function NavTabs({ error }) {
         <Jobs onApply={Submit} jobs={jobs} />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <MyApplications rows={applications} />
+        <MyApplications rows={applications} change={setRating} />
       </TabPanel>
       <TabPanel value={value} index={2}>
         <Profile error={error} />
