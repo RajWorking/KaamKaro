@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Jobs = ({ jobs, erase, edit }) => {
+const Jobs = ({ jobs, erase, onApply }) => {
   const classes = useStyles();
   const [title, setTitle] = useState('');
   const [sort_by, setSort_by] = useState('None');
@@ -141,7 +141,7 @@ const Jobs = ({ jobs, erase, edit }) => {
           else if (sort_by === 'duration') return order_by * (a.duration - b.duration);
           else return 0;
         })
-        .map((job) => custom(job) && <Job job={job} erase={erase} edit={edit} />)}
+        .map((job) => custom(job) && <Job job={job} erase={erase} onApply={onApply} />)}
     </div>
   );
 };
